@@ -8,7 +8,7 @@ export var AdminPresView = React.createClass({
   render: function() {
     return (
       <div>
-        <SlideContainer viewerHash={this.props.params.presID.slice(0,4)} adminHash={this.props.params.presID}/>
+        <SlideContainer viewerHash={this.props.presID.slice(0,4)} adminHash={this.props.presID}/>
       </div>
     );
   }
