@@ -33,8 +33,8 @@ export function images(state = [], action) {
 
 
 // Combine Reducers
-var reducers = combineReducers({
+var rootReducer = combineReducers({
     imagesHasErrored, imagesIsLoading, images
 });
 
-export default reducers;
+export default rootReducer;

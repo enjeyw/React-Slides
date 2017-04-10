@@ -5,20 +5,23 @@ import { Router, Route, Switch, browserHistory, Link } from 'react-router'
 
 import { createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk';
+import rootReducer from './reducers'
 
-const store = function configureStore(initialState) {
+function configureStore(initialState) {
     return createStore(
         rootReducer,
         initialState,
         applyMiddleware(thunk)
     );
-};
+}
+
+const store = configureStore();
 
 // Pages/views
 import HomeView from './HomeView.jsx'
 import UploadView from './UploadView.jsx'
 import ShareView from './ShareView.jsx'
-import {AdminPresView, Slides} from './Presentation.jsx'
+import AdminPresView from './PresentationViews.jsx'
 
 
 render((

@@ -1,3 +1,5 @@
+import request from 'superagent';
+
 // Images
 export const IMAGES_HAS_ERRORED = 'IMAGES_HAS_ERRORED';
 export const IMAGES_IS_LOADING = 'IMAGES_IS_LOADING';
@@ -15,7 +17,7 @@ export function imagesIsLoading(bool) {
         isLoading: bool
     };
 }
-export function itemsFetchDataSuccess(images) {
+export function imagesFetchDataSuccess(images) {
     return {
         type: IMAGES_FETCH_DATA_SUCCESS,
         images
@@ -26,19 +28,24 @@ export function imagesFetchData(viewerHash) {
     return (dispatch) => {
         dispatch(imagesIsLoading(true));
 
-        var req = request.get('/imagess/' + viewerHash) ;
-        req.end(function (err, res) {
-
-            if (err) {
-              dispatch(imagesHasErrored(true));
-              throw Error(err)
-            } else {
-              dispatch(itemsFetchDataSuccess(JSON.parse(res.text).images))
-            }
-            dispatch(imagesIsLoading(false));
-        });
+        return (fetch('/images/' + viewerHash)
+            .then((response) => {
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                dispatch(imagesIsLoading(false));
+                return response;
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                var images = response.images;
+                return dispatch(imagesFetchDataSuccess(images))
+            })
+            .catch(() => dispatch(imagesHasErrored(true))));
     };
 }
+
+
 
 export function errorAfterFiveSeconds() {
     // We return a function instead of an action object
