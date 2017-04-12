@@ -7,6 +7,8 @@ import { createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk';
 import rootReducer from './reducers'
 
+const initialState = {};
+
 function configureStore(initialState) {
     return createStore(
         rootReducer,
@@ -15,17 +17,18 @@ function configureStore(initialState) {
     );
 }
 
-const store = configureStore();
+const store = configureStore(initialState);
 
 // Pages/views
 import HomeView from './HomeView.jsx'
-import UploadView from './UploadView.jsx'
-import ShareView from './ShareView.jsx'
-import AdminPresView from './PresentationViews.jsx'
+import AdminPresView from './AdminPresentationView.jsx'
 
 
 render((
     <Provider store={store}>
-        <AdminPresView presID="5GDy"/>
+        <Router history={browserHistory}>
+            <Route path="/" component={HomeView} />
+            <Route path="/admin/:presID" component={AdminPresView} />
+        </Router>
     </Provider>
     ), document.getElementById('app'));

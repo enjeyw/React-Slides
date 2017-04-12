@@ -1,7 +1,9 @@
 import os, random, fnmatch, hashlib, base64
 from flask import Flask, request, session, redirect, url_for, send_from_directory, render_template, jsonify
 import cloudconvert
+import pusher
 
+import config
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
@@ -11,13 +13,30 @@ random_name_length = 20
 
 application = Flask(__name__)
 application.config['UPLOAD_FOLDER'] = os.path.join(APP_ROOT, UPLOAD_FOLDER)
-application.config['SECRET_KEY'] = 'Smoosh!'
+application.config['SECRET_KEY'] = config.SECRET_KEY
 application.config['CONVERSION_PROCCESS'] = 'cloudconvert'
+
+pusher_client = pusher.Pusher(
+  app_id=config.pusher_app_id,
+  key=config.pusher_key,
+  secret=config.pusher_secret,
+  cluster='ap1',
+  ssl=True
+)
 
 @application.route("/", defaults={'path': ''})
 @application.route('/admin/<path>')
 def show_index(path):
-    return render_template('index.html')
+    return render_template('index.html', pusher_app_key=config.pusher_key)
+
+@application.route('/switch_slide', methods=['POST'])
+def switch_slide():
+    json_data = request.get_json()
+    channel = json_data['channel']
+    slide_index = json_data['slide_index']
+    pusher_client.trigger(channel, 'slide_index', {'slide_index': slide_index})
+    return jsonify({'message': 'Success'}), 200
+
 
 @application.route('/upload', methods=['POST'])
 def upload_file():
@@ -43,7 +62,7 @@ def upload_file():
             file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
             # convert_to_image(filename)
             id_strings = {'starting_string': starting_string, 'admin_hash': admin_id_hash, 'viewer_hash': viewer_id_hash}
-            return jsonify({'message': 'Success', 'id_strings': id_strings}), 200
+            return jsonify({'message': 'Success', 'id_strings': id_strings, 'admin_hash': admin_id_hash}), 200
 
 @application.route('/images/<id_hash>', methods = ['GET'])
 def get_image_urls(id_hash):

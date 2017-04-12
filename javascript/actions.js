@@ -1,5 +1,71 @@
 import request from 'superagent';
 
+// Slide Switching
+export const SENDSWITCH_HAS_ERRORED = 'SENDSWITCH_HAS_ERRORED';
+
+export function sendswitchHasErrored(bool) {
+    return {
+        type: SENDSWITCH_HAS_ERRORED,
+        hasErrored: bool
+    };
+}
+
+export function sendswitch(channel, slide_index) {
+    return (dispatch) => {
+        return (
+            request.post('/switch_slide')
+                .send({ channel: channel, slide_index: slide_index })
+                .end(function (err, res) {
+            if (err) {
+              dispatch(sendswitchHasErrored(true));
+              throw Error(err)
+            }
+        }));
+    };
+}
+
+
+// Presentation Upload
+export const PRESUPLOAD_HAS_ERRORED = 'PRESUPLOAD_HAS_ERRORED';
+export const PRESUPLOAD_IS_LOADING = 'PRESUPLOAD_IS_LOADING';
+export const PRESUPLOAD_SEND_DATA_SUCCESS = 'PRESUPLOAD_SEND_DATA_SUCCESS';
+
+export function presuploadHasErrored(bool) {
+    return {
+        type: PRESUPLOAD_HAS_ERRORED,
+        hasErrored: bool
+    };
+}
+export function presuploadIsLoading(bool) {
+    return {
+        type: PRESUPLOAD_IS_LOADING,
+        isLoading: bool
+    };
+}
+export function presuploadSendDataSuccess(admin_hash) {
+    return {
+        type: PRESUPLOAD_SEND_DATA_SUCCESS,
+        admin_hash: admin_hash
+    };
+}
+
+export function uploadpresentation(file) {
+    return (dispatch) => {
+        dispatch(presuploadIsLoading(true));
+        return (
+            request.post('/upload').attach('file', file).end(function (err, res) {
+            if (err) {
+              dispatch(presuploadHasErrored(true));
+              throw Error(err)
+            } else {
+              dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']))
+            }
+            dispatch(presuploadIsLoading(false));
+        }));
+    };
+}
+
+
 // Images
 export const IMAGES_HAS_ERRORED = 'IMAGES_HAS_ERRORED';
 export const IMAGES_IS_LOADING = 'IMAGES_IS_LOADING';
@@ -27,21 +93,16 @@ export function imagesFetchDataSuccess(images) {
 export function imagesFetchData(viewerHash) {
     return (dispatch) => {
         dispatch(imagesIsLoading(true));
-
-        return (fetch('/images/' + viewerHash)
-            .then((response) => {
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                dispatch(imagesIsLoading(false));
-                return response;
-            })
-            .then((response) => response.json())
-            .then((response) => {
-                var images = response.images;
-                return dispatch(imagesFetchDataSuccess(images))
-            })
-            .catch(() => dispatch(imagesHasErrored(true))));
+        return (
+            request.get('/images/' + viewerHash).end(function (err, res) {
+            if (err) {
+              dispatch(imagesHasErrored(true));
+              throw Error(err)
+            } else {
+              dispatch(imagesFetchDataSuccess(JSON.parse(res.text).images))
+            }
+            dispatch(imagesIsLoading(false));
+        }));
     };
 }
 

@@ -1,5 +1,9 @@
 import React from 'react';
 
+import UploadView from './UploadView.jsx'
+import ShareView from './ShareView.jsx'
+
+
 var HomeView = React.createClass({
 
   getInitialState: function() {
@@ -18,7 +22,7 @@ var HomeView = React.createClass({
     return (
       <div>
         <UploadView setIdStrings={this.setIdStrings}/>
-        <ShareView stringDict={this.state.string_dict}/>
+        <ShareView/>
       </div>
     );
   }

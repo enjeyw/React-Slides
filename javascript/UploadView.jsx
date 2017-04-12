@@ -1,6 +1,24 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { uploadpresentation } from './actions.js'
+
 import request from 'superagent';
 import $ from 'jquery';
+
+const mapStateToProps = (state) => {
+    return {
+        admin_hash: state.admin_hash,
+        hasErrored: state.presuploadHasErrored,
+        isLoading: state.presuploadIsLoading
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        uploadpres: (file) => dispatch(uploadpresentation(file))
+    };
+};
+
 
 var UploadView = React.createClass({
   parse_string_variables: function(string_setter) {
@@ -19,7 +37,8 @@ var UploadView = React.createClass({
   _onClick: function(e){
     var input = document.getElementById('file-input');
     var file = input.files[0];
-    this.uploadfile(file);
+    this.props.uploadpres(file);
+    //this.uploadfile(file);
   },
 
   render: function() {
@@ -36,4 +55,4 @@ var UploadView = React.createClass({
 
 });
 
-export default UploadView;
+export default connect(mapStateToProps, mapDispatchToProps)(UploadView)
