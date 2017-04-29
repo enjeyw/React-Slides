@@ -5,24 +5,13 @@ import ShareView from './ShareView.jsx'
 
 
 var HomeView = React.createClass({
-
-  getInitialState: function() {
-    return {
-      id_string: null
-    };
-  },
-
-  setIdStrings: function (id_strings) {
-    this.setState({
-      string_dict: id_strings
-    })
-  },
-
   render: function() {
+
     return (
-      <div>
-        <UploadView setIdStrings={this.setIdStrings}/>
-        <ShareView/>
+      <div className="site-wrapper-inner">
+        <div className="cover-container container">
+          <UploadView setIdStrings={this.setIdStrings}/>
+        </div>
       </div>
     );
   }

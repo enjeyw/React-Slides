@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 import { IMAGES_HAS_ERRORED, IMAGES_IS_LOADING, IMAGES_FETCH_DATA_SUCCESS,
     PRESUPLOAD_HAS_ERRORED, PRESUPLOAD_IS_LOADING, PRESUPLOAD_SEND_DATA_SUCCESS,
-    SENDSWITCH_HAS_ERRORED} from './actions.js'
+    SENDSWITCH_HAS_ERRORED, RECEIVE_SWITCH} from './actions.js'
 
 // Sending Switches
 export function sendswitchHasErrored(state = false, action) {
@@ -12,6 +12,17 @@ export function sendswitchHasErrored(state = false, action) {
         default:
             return state;
     }
+}
+
+// Receive Switches
+export function recieveswitch(state = 0, action) {
+    switch (action.type) {
+        case 'RECEIVE_SWITCH':
+            return action.data.slide_index;
+        default:
+            return state;
+    }
+
 }
 
 //Presentation_uploads
@@ -27,7 +38,7 @@ export function presuploadHasErrored(state = false, action) {
 export function presuploadIsLoading(state = false, action) {
     switch (action.type) {
         case 'PRESUPLOAD_IS_LOADING':
-            return action.isLoading;SENDSWITCH_HAS_ERRORED
+            return action.isLoading;
         default:
             return state;
     }
@@ -75,7 +86,8 @@ export function images(state = [], action) {
 // Combine Reducers
 var rootReducer = combineReducers({
     presuploadHasErrored, presuploadIsLoading, presupload,
-    imagesHasErrored, imagesIsLoading, images
+    imagesHasErrored, imagesIsLoading, images,
+    sendswitchHasErrored, recieveswitch
 });
 
 export default rootReducer;

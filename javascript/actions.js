@@ -1,6 +1,7 @@
 import request from 'superagent';
+import { browserHistory, Link } from 'react-router'
 
-// Slide Switching
+// send Switching
 export const SENDSWITCH_HAS_ERRORED = 'SENDSWITCH_HAS_ERRORED';
 
 export function sendswitchHasErrored(bool) {
@@ -24,6 +25,15 @@ export function sendswitch(channel, slide_index) {
     };
 }
 
+// receive switching
+export const RECEIVE_SWITCH = 'RECEIVE_SWITCH';
+
+export function receiveswitch(slide_index) {
+    return {
+        type: RECEIVE_SWITCH,
+        slide_index
+    };
+}
 
 // Presentation Upload
 export const PRESUPLOAD_HAS_ERRORED = 'PRESUPLOAD_HAS_ERRORED';
@@ -58,9 +68,11 @@ export function uploadpresentation(file) {
               dispatch(presuploadHasErrored(true));
               throw Error(err)
             } else {
-              dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']))
+              dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
+              browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
             }
             dispatch(presuploadIsLoading(false));
+
         }));
     };
 }

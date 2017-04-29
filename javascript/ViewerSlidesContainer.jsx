@@ -1,45 +1,56 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { imagesFetchData, sendswitch } from './actions.js'
+import { imagesFetchData, RECEIVE_SWITCH } from './actions.js'
 
 import request from 'superagent';
 import ReactSwipe from 'react-swipe';
 
-//import AdminSlides from './AdminSlidesView.jsx'
+import { subscribe, unsubscribe } from 'pusher-redux';
+
 
 const mapStateToProps = (state) => {
     return {
         images: state.images,
         imagesHasErrored: state.imagesHasErrored,
-        imagesIsLoading: state.imagesIsLoading
+        imagesIsLoading: state.imagesIsLoading,
+        slideIndex: state.recieveswitch
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        fetchData: (hash) => dispatch(imagesFetchData(hash)),
-        sendSwitch: (channel, slide_index) => dispatch(sendswitch(channel, slide_index))
+        fetchData: (hash) => dispatch(imagesFetchData(hash))
     };
 };
 
-var AdminSlidesContainer = React.createClass({
+var ViewerSlidesContainer = React.createClass({
+  swipe_options: function() {
+      var swipeOptions = {
+          continuous: true,
+          disableScroll: true
+      };
+
+      return swipeOptions
+  },
+
+  subscribe: function() {
+    subscribe(this.props.viewerHash, 'slide_index', RECEIVE_SWITCH);
+  },
+
+  unsubscribe: function() {
+    unsubscribe(this.props.viewerHash, 'slide_index', RECEIVE_SWITCH);
+  },
+
+  componentWillMount: function() {
+    this.subscribe();
+  },
 
   componentDidMount: function() {
       this.props.fetchData(this.props.viewerHash);
   },
 
-  swipe_callback: function (index, elem) {
-      this.props.sendSwitch(this.props.adminHash, index)
-  },
-
-  swipe_options: function() {
-      var swipeOptions = {
-          continuous: true,
-          disableScroll: false,
-          callback: this.swipe_callback
-      };
-
-      return swipeOptions
+  componentWillUnmount() {
+    this.unsubscribe();
   },
 
   render: function() {
@@ -49,11 +60,16 @@ var AdminSlidesContainer = React.createClass({
       if (this.props.imagesIsLoading) {
           return <p>Loading…</p>;
       }
-      return (<AdminSlides images={this.props.images} swipeOptions = {this.swipe_options()}  />);
+      return (
+          <div>
+              <div>{this.props.slideIndex}</div>
+          <ViewerSlides images={this.props.images} swipeOptions = {this.swipe_options()} slideIndex = {this.props.slideIndex} />
+          </div>
+      );
   }
 });
 
-var AdminSlides = React.createClass({
+var ViewerSlides = React.createClass({
 
   getInitialState: function() {
     return {
@@ -61,12 +77,8 @@ var AdminSlides = React.createClass({
     };
   },
 
-  _next: function(e) {
-    this.refs.reactSwipe.next();
-  },
-
-  _prev: function(e) {
-    this.refs.reactSwipe.prev();
+  componentDidUpdate: function() {
+      this.refs.reactSwipe.slide(this.props.slideIndex,400);
   },
 
   _toggle_screen: function(e) {
@@ -95,14 +107,11 @@ var AdminSlides = React.createClass({
 
           return (
               <div className="SlideContainer">
-                  <div>
-                      <a className="prev change_slide_button" onClick={this._prev}><i className="fa fa-angle-left fa-2x"></i></a>
-                      <a className="next change_slide_button" onClick={this._next}><i className="fa fa-angle-right fa-2x"></i></a>
-                  </div>
-                  <a className="fullscreen_toggle" onClick={this._toggle_screen}><i className={togglebuttonClassName}></i></a>
                   <ReactSwipe ref="reactSwipe" className="carousel" swipeOptions={this.props.swipeOptions}>
                     {image_list}
                   </ReactSwipe>
+                  <a className="fullscreen_toggle" onClick={this._toggle_screen}><i className={togglebuttonClassName}></i></a>
+
               </div>
 
           );
@@ -113,4 +122,4 @@ var AdminSlides = React.createClass({
 });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminSlidesContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(ViewerSlidesContainer)
