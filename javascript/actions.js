@@ -39,6 +39,7 @@ export function receiveswitch(slide_index) {
 export const PRESUPLOAD_HAS_ERRORED = 'PRESUPLOAD_HAS_ERRORED';
 export const PRESUPLOAD_IS_LOADING = 'PRESUPLOAD_IS_LOADING';
 export const PRESUPLOAD_SEND_DATA_SUCCESS = 'PRESUPLOAD_SEND_DATA_SUCCESS';
+export const PRESUPLOAD_PERCENT_UPLOADED = 'PRESUPLOAD_PERCENT_UPLOADED';
 
 export function presuploadHasErrored(bool) {
     return {
@@ -46,6 +47,13 @@ export function presuploadHasErrored(bool) {
         hasErrored: bool
     };
 }
+export function presuploadPercentUploaded(percent) {
+    return {
+        type: PRESUPLOAD_PERCENT_UPLOADED,
+        percentUploaded: percent
+    };
+}
+
 export function presuploadIsLoading(bool) {
     return {
         type: PRESUPLOAD_IS_LOADING,
@@ -63,17 +71,20 @@ export function uploadpresentation(file) {
     return (dispatch) => {
         dispatch(presuploadIsLoading(true));
         return (
-            request.post('/upload').attach('file', file).end(function (err, res) {
-            if (err) {
-              dispatch(presuploadHasErrored(true));
-              throw Error(err)
-            } else {
-              dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
-              browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
-            }
-            dispatch(presuploadIsLoading(false));
-
-        }));
+            request.post('/upload').attach('file', file)
+                   .on('progress', function(e) {
+                        dispatch(presuploadPercentUploaded(e.percent));})
+                   .end(function (err, res) {
+                        if (err) {
+                          dispatch(presuploadHasErrored(true));
+                          throw Error(err)
+                        } else {
+                          dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
+                          browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
+                        }
+                        dispatch(presuploadIsLoading(false));
+                        })
+        );
     };
 }
 

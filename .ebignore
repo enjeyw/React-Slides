@@ -1,2 +1,4 @@
-javascript/
+./javascript/
 node_modules/
+
+.git/

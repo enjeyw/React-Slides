@@ -5,15 +5,15 @@
     <title>Slidecast.io - present slides on multiple screens</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="../static/css/pe-icon-7-stroke.css">
-    <link rel="stylesheet" href="../static/css/helper.css">
+    <link rel="stylesheet" href="/static/css/pe-icon-7-stroke.css">
+    <link rel="stylesheet" href="/static/css/helper.css">
 
     <link href="https://fonts.googleapis.com/css?family=Quicksand:300" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../static/css/cover.css?v=d{{ range(1, 1000) | random }}">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/cover.css?v=d{{ range(1, 1000) | random }}">
 
-    <link rel='shortcut icon' type='image/x-icon' href='../static/css/magic-wand-icon.png'/>
+    <link rel='shortcut icon' type='image/x-icon' href='/static/css/magic-wand-icon.png'/>
 
     <script>
     var PUSHER_CHAT_APP_KEY = '{{ pusher_app_key }}';
@@ -34,7 +34,13 @@
 <body>
 
     <div id="app" class="site-wrapper">
+        <div class="site-wrapper-inner">
+            <div class="cover-container container">
+                <div class="loading"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
     </div>
-    <script src="../static/javascript/bundle.js?v=d{{ range(1, 1000) | random }}" type="text/javascript"></script>
+    <script src="/static/javascript/bundle.js?v=d{{ range(1, 1000) | random }}" type="text/javascript"></script>
 </body>
 </html>

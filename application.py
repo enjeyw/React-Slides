@@ -5,6 +5,10 @@ import pusher
 import requests
 from requests.auth import HTTPBasicAuth
 
+
+import logging
+from logging.handlers import RotatingFileHandler
+
 import config
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +17,7 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 UPLOAD_PATH = '/var/app/'
 
-ALLOWED_EXTENSIONS = set(['ppt', 'pptx','png', 'pdf'])
+ALLOWED_EXTENSIONS = set(['ppt', 'pptx','png', 'pdf', 'jpg'])
 random_name_length = 20
 
 application = Flask(__name__)
@@ -31,6 +35,7 @@ pusher_client = pusher.Pusher(
 
 @application.route("/", defaults={'path': ''})
 @application.route('/admin/<path>')
+@application.route('/admin/<path>/present')
 @application.route("/<path>")
 def show_index(path):
     return render_template('index.html', pusher_app_key=config.pusher_key)
@@ -79,7 +84,10 @@ def get_image_urls(id_hash):
     files = sorted(find_matching_files(id_hash))
     images = []
     for file in files:
-        image_id = file.rsplit('.', 1)[0].rsplit('-', 1)[1]
+        try:
+            image_id = file.rsplit('.', 1)[0].rsplit('-', 1)[1]
+        except IndexError:
+            image_id = 1
         images.append((image_id,file))
 
     return jsonify({'message': 'Success', 'images': images}), 200
@@ -179,7 +187,7 @@ def find_matching_files(id_string):
     files = []
 
     for file in os.listdir(application.config['UPLOAD_PATH']):
-        if fnmatch.fnmatch(file, '%s-*.png' %(id_string)):
+        if fnmatch.fnmatch(file, '%s*.png' %(id_string)):
             files.append(url_for('uploaded_file',filename = file))
 
     return files
@@ -195,6 +203,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 if __name__ == "__main__":
+
+    handler = RotatingFileHandler('/var/app/pythonerrors.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    application.logger.addHandler(handler)
 
     application.run(host='0.0.0.0', threaded=True, debug=True)
     # application.run(port=5001, threaded=True, debug=True)

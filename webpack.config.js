@@ -11,7 +11,7 @@ var config = {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
-  devtool: "#eval-source-map",
+  devtool: "#cheap-module-source-map.",   // #eval-source-map" #cheap-module-source-map."
   module : {
     loaders : [
       {
@@ -21,9 +21,6 @@ var config = {
       }
     ]
   }, plugins: [
-
-    // Added as the last plugin
-    // Not sure if it's worth gzipping index.html - no harm no foul
 
     new CompressionPlugin({
       asset: "[path].gz[query]",

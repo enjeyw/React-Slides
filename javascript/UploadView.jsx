@@ -9,7 +9,8 @@ const mapStateToProps = (state) => {
     return {
         admin_hash: state.presupload,
         hasErrored: state.presuploadHasErrored,
-        isLoading: state.presuploadIsLoading
+        isLoading: state.presuploadIsLoading,
+        percent_uploaded: state.presuploadPercentUploaded
     };
 };
 
@@ -36,7 +37,27 @@ var UploadView = React.createClass({
       button = <div></div>
     }
 
-    if (this.props.admin_hash == '' && this.props.isLoading == false) {
+      if (this.props.percent_uploaded < 99) {
+          var loading_text = (<div>
+            <p>Upoading</p>
+            <p>{Math.round(this.props.percent_uploaded)}%</p>
+          </div>);
+      } else {
+          var loading_text = (<div>
+            <p>Processing</p>
+          </div>);
+      }
+
+    if (this.props.hasErrored) {
+        return (
+            <div>
+                <div className="cover-heading">
+                    <p className="error"> Oh no, an error :( </p>
+                    <p className="error"> Please contact nick @ <a href="https://github.com/enjeyw"> </a>  </p>
+                </div>
+            </div>
+        );
+    } else if (this.props.admin_hash == '' && this.props.isLoading == false) {
 
         return (
             <div>
@@ -50,10 +71,14 @@ var UploadView = React.createClass({
             </div>
         );
     } else{
-        return (<div className="cover-heading">
-            <div className="loading"></div>
-            <p>Loading...</p>
-        </div>)
+        return (
+            <div>
+                <div className="cover-heading">
+                    </div>
+                <div className="loading"></div>
+                    {loading_text}
+            </div>
+        );
     }
   }
 
