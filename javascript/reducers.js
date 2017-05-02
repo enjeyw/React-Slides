@@ -35,7 +35,7 @@ export function presuploadHasErrored(state = false, action) {
     }
 }
 
-export function presuploadPercentUploaded(state = 10, action) {
+export function presuploadPercentUploaded(state = 0, action) {
 
     switch (action.type) {
         case 'PRESUPLOAD_PERCENT_UPLOADED':

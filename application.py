@@ -1,5 +1,7 @@
-import os, random, fnmatch, hashlib, base64, time
+import os, random, fnmatch, hashlib, base64, time, datetime
 from flask import Flask, request, session, redirect, url_for, send_from_directory, render_template, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
 import cloudconvert
 import pusher
 import requests
@@ -11,19 +13,15 @@ from logging.handlers import RotatingFileHandler
 
 import config
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-# UPLOAD_FOLDER = 'static/uploads/'
-# UPLOAD_PATH = os.path.join(APP_ROOT, UPLOAD_FOLDER)
-
-UPLOAD_PATH = '/var/app/'
 
 ALLOWED_EXTENSIONS = set(['ppt', 'pptx','png', 'pdf', 'jpg'])
 random_name_length = 20
 
 application = Flask(__name__)
-application.config['UPLOAD_PATH'] = UPLOAD_PATH
-application.config['SECRET_KEY'] = config.SECRET_KEY
-application.config['CONVERSION_PROCCESS'] = 'cloudconvert'
+application.config.from_object('config')
+
+db = SQLAlchemy(application)
+
 
 pusher_client = pusher.Pusher(
   app_id=config.pusher_app_id,
@@ -67,30 +65,33 @@ def upload_file():
             extension = file.filename.rsplit('.', 1)[1]
 
             starting_string = generate_random_name_string(random_name_length)
-            # starting_string = '1234'
             viewer_id_hash = hash_encode(starting_string, 'viewerhash')[0:4]
             file_hash = viewer_id_hash
             admin_id_hash = viewer_id_hash + hash_encode(viewer_id_hash, 'adminhash')[0:3]
 
             filename = file_hash + "." + extension
             file.save(os.path.join(application.config['UPLOAD_PATH'], filename))
-            convert_to_image(filename)
+            process_time = convert_to_image(filename)
             id_strings = {'starting_string': starting_string, 'admin_hash': admin_id_hash, 'viewer_hash': viewer_id_hash}
-            return jsonify({'message': 'Success', 'id_strings': id_strings, 'admin_hash': admin_id_hash}), 200
+            return jsonify({'message': 'Success',
+                            'id_strings': id_strings,
+                            'admin_hash': admin_id_hash,
+                            'process_time': process_time}), 200
 
 @application.route('/images/<id_hash>', methods = ['GET'])
 def get_image_urls(id_hash):
 
-    files = sorted(find_matching_files(id_hash))
     images = []
-    for file in files:
+    for file in find_matching_files(id_hash):
         try:
             image_id = file.rsplit('.', 1)[0].rsplit('-', 1)[1]
         except IndexError:
             image_id = 1
         images.append((image_id,file))
 
-    return jsonify({'message': 'Success', 'images': images}), 200
+    images_sorted = sorted(images, key = lambda x: int(x[0]))
+
+    return jsonify({'message': 'Success', 'images': images_sorted}), 200
 
 @application.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -103,13 +104,17 @@ def generate_random_name_string(length):
 
 def convert_to_image(filename):
     if application.config['CONVERSION_PROCCESS'] == 'cloudconvert':
-        convert_using_cloudconvert(filename)
+        time = convert_using_cloudconvert(filename)
     elif application.config['CONVERSION_PROCCESS'] == 'unoconv':
-        convert_using_unoconv(filename)
+        time = convert_using_unoconv(filename)
     elif application.config['CONVERSION_PROCCESS'] == 'zamzar':
-        convert_using_zamzar(filename)
+        time = convert_using_zamzar(filename)
+    else:
+        time = ('')
+    return time
 
 def convert_using_zamzar(filename):
+    start_time = datetime.datetime.utcnow()
 
     file_string = filename.rsplit('.', 1)[0]
 
@@ -150,7 +155,13 @@ def convert_using_zamzar(filename):
         # except IOError:
         #     print("Error")
 
+    end_time = datetime.datetime.utcnow()
+
+    return(str(end_time-start_time))
+
 def convert_using_cloudconvert(filename):
+    start_time = datetime.datetime.utcnow()
+
     cc_api = cloudconvert.Api(config.cloudconvert_key)
 
     filetype = filename.rsplit('.', 1)[1]
@@ -169,19 +180,30 @@ def convert_using_cloudconvert(filename):
 
     print('conversion process complete')
 
+    end_time = datetime.datetime.utcnow()
+
+    return(str(end_time-start_time))
+
 
 
 def convert_using_unoconv(filename):
+    start_time = datetime.datetime.utcnow()
     image_type = 'png'
 
     file_string = filename.rsplit('.', 1)[0]
     current_type = filename.rsplit('.', 1)[1]
     if current_type != 'pdf':
-        unoconv_command = "(cd %s && unoconv -f pdf %s)" %(UPLOAD_PATH, filename)
+        unoconv_command = "(cd %s && unoconv -f pdf %s)" %(application.config['UPLOAD_PATH'], filename)
         os.system(unoconv_command)
 
-    imagemagick_command = "(cd %s && convert -density 150 %s.pdf -quality 100 %s-%%d.png)" %(application.config['UPLOAD_PATH'], file_string, file_string)
-    os.system(imagemagick_command)
+    pdf_time = datetime.datetime.utcnow()
+    imagemagick_command = "(cd %s && convert -density 300 %s.pdf -quality 70 %s-%%d.png)" %(application.config['UPLOAD_PATH'], file_string, file_string)
+    ghostscript_command = "(cd %s && gs -dNOPAUSE -dBATCH -dNumRenderingThreads=8 -sDEVICE=pngalpha -sOutputFile=%s-%%d.png -r300 -q %s.pdf)" %(application.config['UPLOAD_PATH'], file_string, file_string)
+    os.system(ghostscript_command)
+
+    end_time = datetime.datetime.utcnow()
+
+    return (str(end_time - start_time), str(pdf_time - start_time))
 
 def find_matching_files(id_string):
     files = []
@@ -195,7 +217,7 @@ def find_matching_files(id_string):
 def hash_encode(starting_string, final_part):
     return base64.urlsafe_b64encode(
                 hashlib.sha1(str(starting_string + application.config['SECRET_KEY'] + final_part).encode('utf-8')).digest()
-            ).decode("utf-8").strip('-').strip('_')
+            ).decode("utf-8").strip('-').strip('_').lower()
 
 
 def allowed_file(filename):
@@ -204,9 +226,9 @@ def allowed_file(filename):
 
 if __name__ == "__main__":
 
-    handler = RotatingFileHandler('/var/app/pythonerrors.log', maxBytes=10000, backupCount=1)
-    handler.setLevel(logging.INFO)
-    application.logger.addHandler(handler)
+    # handler = RotatingFileHandler('/var/app/pythonerrors.log', maxBytes=10000, backupCount=1)
+    # handler.setLevel(logging.INFO)
+    # application.logger.addHandler(handler)
 
     application.run(host='0.0.0.0', threaded=True, debug=True)
     # application.run(port=5001, threaded=True, debug=True)

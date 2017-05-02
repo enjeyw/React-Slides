@@ -39,7 +39,7 @@ var UploadView = React.createClass({
 
       if (this.props.percent_uploaded < 99) {
           var loading_text = (<div>
-            <p>Upoading</p>
+            <p>Uploading</p>
             <p>{Math.round(this.props.percent_uploaded)}%</p>
           </div>);
       } else {
@@ -53,7 +53,7 @@ var UploadView = React.createClass({
             <div>
                 <div className="cover-heading">
                     <p className="error"> Oh no, an error :( </p>
-                    <p className="error"> Please contact nick @ <a href="https://github.com/enjeyw"> </a>  </p>
+                    <p className="error"> Please contact nick @ <a href="https://github.com/enjeyw"> github.com/enjeyw </a>  </p>
                 </div>
             </div>
         );

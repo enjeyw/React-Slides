@@ -44,27 +44,26 @@ var ShareView = React.createClass({
                                         <a href={"mailto:?subject=Check out my presentation&body=Just follow this link: https://"
                                                     + window.location.hostname + '/' + admin_hash.slice(0,4)
                                                 }>
-                                            <span className="fa fa-envelope-o"></span>
+                                            <span className="fa fa-envelope-o fa-3x"></span>
                                         </a>
+
                                     </p>
+
                                 </div>
                             </div>
                         </div>
                         <div className="Row">
                             <div className="Sharelink col-md-6">
-                            <p>
                                 <Link to={'/admin/' + admin_hash + '/present'}>
                                     <h3>  <span className="pe-7s-magic-wand"></span> Go Present!</h3>
                                     {window.location.hostname + '/admin/' + admin_hash + '/present'}
                                 </Link>
-                            </p>
-                        </div>
-                        <div className="Row">
-                            Your slides will be kept for 4 weeks.
-                        </div>
-                        </div>
 
-
+                            </div>
+                            <div className="Row">
+                                Your slides will be kept for 4 weeks.
+                            </div>
+                        </div>
                     </div>
                  </div>
             );
