@@ -1,6 +1,42 @@
 import request from 'superagent';
 import { browserHistory, Link } from 'react-router'
 
+// post email
+export const POST_EMAIL_HAS_ERRORED = 'POST_EMAIL_HAS_ERRORED';
+export const POST_EMAIL_SUCCESS = 'POST_EMAIL_SUCCESS';
+
+export function postEmailHasErrored(bool) {
+    return {
+        type: POST_EMAIL_HAS_ERRORED,
+        hasErrored: bool
+    };
+}
+
+export function postEmailSuccess(bool) {
+    return {
+        type: POST_EMAIL_SUCCESS,
+        success: bool
+    };
+}
+
+export function postEmail(email) {
+    return (dispatch) => {
+        return (
+            request.post('/email')
+                .auth(SESSION_TOKEN)
+                .send({ email: email})
+                .end(function (err, res) {
+                    if (err) {
+                      dispatch(postEmailHasErrored(true));
+                      throw Error(err)
+                    } else {
+                      dispatch(postEmailSuccess(true));
+                    }
+                })
+        );
+    };
+}
+
 // send Switching
 export const SENDSWITCH_HAS_ERRORED = 'SENDSWITCH_HAS_ERRORED';
 
@@ -71,19 +107,21 @@ export function uploadpresentation(file) {
     return (dispatch) => {
         dispatch(presuploadIsLoading(true));
         return (
-            request.post('/upload').attach('file', file)
-                   .on('progress', function(e) {
-                        dispatch(presuploadPercentUploaded(e.percent));})
-                   .end(function (err, res) {
-                        if (err) {
-                          dispatch(presuploadHasErrored(true));
-                          throw Error(err)
-                        } else {
-                          dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
-                          browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
-                        }
-                        dispatch(presuploadIsLoading(false));
-                        })
+            request.post('/upload')
+                .attach('file', file)
+                .auth(SESSION_TOKEN)
+                .on('progress', function(e) {
+                    dispatch(presuploadPercentUploaded(e.percent));})
+                .end(function (err, res) {
+                    if (err) {
+                      dispatch(presuploadHasErrored(true));
+                      throw Error(err)
+                    } else {
+                      dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
+                      //browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
+                    }
+                    dispatch(presuploadIsLoading(false));
+                    })
         );
     };
 }
@@ -128,7 +166,6 @@ export function imagesFetchData(viewerHash) {
         }));
     };
 }
-
 
 
 export function errorAfterFiveSeconds() {

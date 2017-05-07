@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { uploadpresentation } from './actions.js'
 import { browserHistory, Link } from 'react-router'
 
+import EmailView from './EmailView.jsx'
+import LoadingSpinner from './LoadingSpinner.jsx'
+
 import request from 'superagent';
 
 const mapStateToProps = (state) => {
@@ -39,7 +42,7 @@ var UploadView = React.createClass({
 
       if (this.props.percent_uploaded < 99) {
           var loading_text = (<div>
-            <p>Uploading</p>
+            <p>Upoading</p>
             <p>{Math.round(this.props.percent_uploaded)}%</p>
           </div>);
       } else {
@@ -75,8 +78,8 @@ var UploadView = React.createClass({
             <div>
                 <div className="cover-heading">
                     </div>
-                <div className="loading"></div>
-                    {loading_text}
+                <EmailView/>
+                <LoadingSpinner loadingText={loading_text}/>
             </div>
         );
     }

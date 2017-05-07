@@ -2,7 +2,7 @@ import React from 'react';
 
 import UploadView from './UploadView.jsx'
 import ShareView from './ShareView.jsx'
-
+import EmailView from './EmailView.jsx'
 
 var HomeView = React.createClass({
   render: function() {

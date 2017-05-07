@@ -17,6 +17,7 @@
 
     <script>
     var PUSHER_CHAT_APP_KEY = '{{ pusher_app_key }}';
+    var SESSION_TOKEN = '{{ session_token }}';
     </script>
 
     <script>
@@ -36,8 +37,14 @@
     <div id="app" class="site-wrapper">
         <div class="site-wrapper-inner">
             <div class="cover-container container">
-                <div class="loading"></div>
-                <p>Loading...</p>
+                <div class="Loading_Spinner">
+                <div class="spinner-inner">
+                    <div class="spinner_rings"></div>
+                    <div class="spinner_text">
+                        Loading...
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
