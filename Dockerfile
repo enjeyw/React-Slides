@@ -31,10 +31,6 @@ RUN chmod +x /deploy.sh
 # Bundle app source
 ADD . /src
 
-#RUN apt-get install -y software-properties-common
-#RUN add-apt-repository ppa:libreoffice/ppa
-#RUN apt-get update
-
 # Expose
 EXPOSE  5000
 

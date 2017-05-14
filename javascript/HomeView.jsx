@@ -1,8 +1,8 @@
 import React from 'react';
 
 import UploadView from './UploadView.jsx'
-import ShareView from './ShareView.jsx'
 import EmailView from './EmailView.jsx'
+import Header from './Header.jsx'
 
 var HomeView = React.createClass({
   render: function() {
@@ -10,6 +10,8 @@ var HomeView = React.createClass({
     return (
       <div className="site-wrapper-inner">
         <div className="cover-container container">
+            <Header />
+
           <UploadView setIdStrings={this.setIdStrings}/>
         </div>
       </div>

@@ -3,12 +3,21 @@ import { browserHistory, Link } from 'react-router'
 
 // post email
 export const POST_EMAIL_HAS_ERRORED = 'POST_EMAIL_HAS_ERRORED';
+export const POST_EMAIL_LOADING = 'POST_EMAIL_LOADING';
 export const POST_EMAIL_SUCCESS = 'POST_EMAIL_SUCCESS';
+export const POST_EMAIL_SKIPPED = 'POST_EMAIL_SKIPPED';
 
 export function postEmailHasErrored(bool) {
     return {
         type: POST_EMAIL_HAS_ERRORED,
         hasErrored: bool
+    };
+}
+
+export function postEmailLoading(bool) {
+    return {
+        type: POST_EMAIL_LOADING,
+        loading: bool
     };
 }
 
@@ -19,8 +28,16 @@ export function postEmailSuccess(bool) {
     };
 }
 
+export function postEmailSkipped(bool) {
+    return {
+        type: POST_EMAIL_SKIPPED,
+        skipped: bool
+    };
+}
+
 export function postEmail(email) {
     return (dispatch) => {
+        dispatch(postEmailLoading(true));
         return (
             request.post('/email')
                 .auth(SESSION_TOKEN)
@@ -32,6 +49,7 @@ export function postEmail(email) {
                     } else {
                       dispatch(postEmailSuccess(true));
                     }
+                dispatch(postEmailLoading(false));
                 })
         );
     };
@@ -118,7 +136,6 @@ export function uploadpresentation(file) {
                       throw Error(err)
                     } else {
                       dispatch(presuploadSendDataSuccess(JSON.parse(res.text)['admin_hash']));
-                      //browserHistory.push('/admin/' + JSON.parse(res.text)['admin_hash'])
                     }
                     dispatch(presuploadIsLoading(false));
                     })

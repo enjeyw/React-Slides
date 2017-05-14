@@ -1,0 +1,10 @@
+Hi there,
+
+The adminstration link for your Slidecast presentation is:
+https://slidecast.io/admin/{{admin_hash}}
+
+You can use this to access your presentation at any time.
+
+Happy Presenting!
+
+Slidecast.io

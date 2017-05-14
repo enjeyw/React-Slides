@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 import {
     PRESUPLOAD_HAS_ERRORED, PRESUPLOAD_PERCENT_UPLOADED, PRESUPLOAD_IS_LOADING, PRESUPLOAD_SEND_DATA_SUCCESS,
-    POST_EMAIL_HAS_ERRORED,
+    POST_EMAIL_HAS_ERRORED, POST_EMAIL_SKIPPED, POST_EMAIL_SUCCESS, POST_EMAIL_LOADING,
     IMAGES_HAS_ERRORED, IMAGES_IS_LOADING, IMAGES_FETCH_DATA_SUCCESS,
     SENDSWITCH_HAS_ERRORED, RECEIVE_SWITCH } from './actions.js'
 
@@ -54,10 +54,28 @@ export function postEmailHasErrored(state = false, action) {
     }
 }
 
+export function postEmailLoading(state = false, action) {
+    switch (action.type) {
+        case 'POST_EMAIL_LOADING':
+            return action.loading;
+        default:
+            return state;
+    }
+}
+
 export function postEmailSuccess(state = false, action) {
     switch (action.type) {
         case 'POST_EMAIL_SUCCESS':
             return action.success;
+        default:
+            return state;
+    }
+}
+
+export function postEmailSkipped(state = false, action) {
+    switch (action.type) {
+        case 'POST_EMAIL_SKIPPED':
+            return action.skipped;
         default:
             return state;
     }
@@ -114,7 +132,7 @@ export function recieveswitch(state = 0, action) {
 // Combine Reducers
 var rootReducer = combineReducers({
     presuploadHasErrored, presuploadIsLoading, presuploadPercentUploaded, presupload,
-    postEmailHasErrored, postEmailSuccess,
+    postEmailHasErrored, postEmailSuccess, postEmailSkipped, postEmailLoading,
     imagesHasErrored, imagesIsLoading, images,
     sendswitchHasErrored, recieveswitch
 });

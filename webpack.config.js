@@ -2,7 +2,7 @@ var webpack = require('webpack');
 var path = require('path');
 var CompressionPlugin = require("compression-webpack-plugin");
 
-var BUILD_DIR = path.resolve(__dirname, 'static/javascript');
+var BUILD_DIR = path.resolve(__dirname, 'application/static/javascript');
 var APP_DIR = path.resolve(__dirname, 'javascript');
 
 var config = {

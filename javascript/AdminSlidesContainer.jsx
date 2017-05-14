@@ -61,6 +61,22 @@ var AdminSlides = React.createClass({
     };
   },
 
+  componentWillMount:function(){
+     document.addEventListener("Keydown", this._handleKeyDown, false);
+  },
+
+  componentWillUnmount: function() {
+     document.removeEventListener("Keydown", this._handleKeyDown, false);
+  },
+
+  _handleKeyDown:function(event){
+        if (event.keyCode == 39){
+          this._next()
+        } else if (event.keyCode == 37) {
+          this._prev()
+        }
+  },
+
   _next: function(e) {
     this.refs.reactSwipe.next();
   },

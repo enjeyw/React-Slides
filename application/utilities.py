@@ -1,7 +1,8 @@
 import random, hashlib, fnmatch, os, base64
 from flask import url_for
+from itsdangerous import JSONWebSignatureSerializer
 
-from application import application
+from application import application, db, models
 
 
 def generate_random_name_string(length):
@@ -25,3 +26,15 @@ def hash_encode(starting_string, final_part):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in application.config['ALLOWED_EXTENSIONS']
+
+def get_websession(request):
+    s = JSONWebSignatureSerializer(application.config['SECRET_KEY'])
+    websession_string = s.loads(request.authorization['username'].encode("utf-8"))['session_string']
+
+    websession = models.Websessions.query.filter_by(websession_string = websession_string).first()
+    if websession is None:
+        websession = models.Websessions(websession_string = websession_string)
+        db.session.add(websession)
+        db.session.commit()
+
+    return websession

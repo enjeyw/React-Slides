@@ -1,25 +1,35 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { uploadpresentation } from './actions.js'
+import { uploadpresentation, postEmailSkipped, presuploadSendDataSuccess, postEmailLoading } from './actions.js'
 import { browserHistory, Link } from 'react-router'
-
+import store from './index.jsx'
 import EmailView from './EmailView.jsx'
+import ViewercodeInput from './ViewercodeInput.jsx'
 import LoadingSpinner from './LoadingSpinner.jsx'
+import DemoButton from './DemoButton.jsx'
 
 import request from 'superagent';
 
 const mapStateToProps = (state) => {
     return {
         admin_hash: state.presupload,
-        hasErrored: state.presuploadHasErrored,
+        uploadHasErrored: state.presuploadHasErrored,
         isLoading: state.presuploadIsLoading,
-        percent_uploaded: state.presuploadPercentUploaded
+        percent_uploaded: state.presuploadPercentUploaded,
+        emailSuccess: state.postEmailSuccess,
+        emailSkipped: state.postEmailSkipped,
+        emailLoading: state.postEmailLoading
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        uploadpres: (file) => dispatch(uploadpresentation(file))
+        uploadpres: (file) => dispatch(uploadpresentation(file)),
+        set_skipped: (skipped) => dispatch(postEmailSkipped(skipped)),
+        reset: () => {
+            dispatch(presuploadSendDataSuccess(''));
+            dispatch(postEmailLoading(false))
+        }
     };
 };
 
@@ -32,10 +42,29 @@ var UploadView = React.createClass({
     //this.uploadfile(file);
   },
 
+  _skipEmail: function(e){
+    this.props.set_skipped(true);
+  },
+
+  componentWillMount: function() {
+      this.props.reset()
+  },
+
+  componentDidUpdate: function() {
+      if (this.props.admin_hash != '' && (this.props.emailSkipped || this.props.emailSuccess)) {
+          browserHistory.push('/admin/' + this.props.admin_hash)
+      }
+  },
+
   render: function(){
     let button = null;
     if (this.props.isLoading == false) {
-      button = <UploadButton onClick = {this._onClick}/>
+      button = <div className="row">
+                    <div className="col-12">
+                      <UploadButton onClick = {this._onClick}/>
+                      <DemoButton/>
+                    </div>
+               </div>
     } else {
       button = <div></div>
     }
@@ -51,12 +80,12 @@ var UploadView = React.createClass({
           </div>);
       }
 
-    if (this.props.hasErrored) {
+    if (this.props.uploadHasErrored) {
         return (
             <div>
                 <div className="cover-heading">
                     <p className="error"> Oh no, an error :( </p>
-                    <p className="error"> Please contact nick @ <a href="https://github.com/enjeyw"> github.com/enjeyw </a>  </p>
+                    <p className="error"> Please get in contact at <a href="mailto:nick@slidecast.io"> nick@slidecast.io</a>  </p>
                 </div>
             </div>
         );
@@ -68,18 +97,32 @@ var UploadView = React.createClass({
                     <h1>
                         Present using anyone's screen!
                     </h1>
-                    <p> No Projector? No problem! Slidecast allows you present on multiple devices - when you change slide on your device, everyone else's will too.</p>
+                    <p> No Projector? No problem! Slidecast allows you to present on multiple devices - when you change slide on your device, everyone else's will too.</p>
                 </div>
                 {button}
+
+                <div className="mastfoot">
+                    <h4>
+                        Have a viewer code?
+                    </h4>
+                    <ViewercodeInput/>
+                </div>
             </div>
         );
-    } else{
+    } else if (this.props.emailSkipped || this.props.emailSuccess || this.props.emailLoading) {
         return (
             <div>
                 <div className="cover-heading">
-                    </div>
-                <EmailView/>
+                </div>
                 <LoadingSpinner loadingText={loading_text}/>
+            </div>
+        );
+    } else {
+        return (
+            <div>
+                <div className="cover-heading">
+                </div>
+                <EmailView/>
             </div>
         );
     }
@@ -94,7 +137,7 @@ var UploadButton = React.createClass({
                     <input type="file" name='file' id="file-input" className="inputfile"
                            onChange={this.props.onClick}></input>
                     <label htmlFor="file-input">
-                        <span className="fa fa-paper-plane-o uploadIcon"></span> Try with your slides
+                        Try with your slides
                     </label>
                     <p className="filetypes-text">
                         (ppt, pdf etc)
@@ -105,3 +148,7 @@ var UploadButton = React.createClass({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadView)
+
+                        //<span className="fa fa-paper-plane-o uploadIcon"></span>
+
+                    //<p style={{margin: '0px'}}><i> Enter it here: </i></p>

@@ -100,9 +100,9 @@ def convert_using_unoconv(filename):
 
     pdf_time = datetime.datetime.utcnow()
     imagemagick_command = "(cd %s && convert -density 300 %s.pdf -quality 70 %s-%%d.png)" %(application.config['UPLOAD_PATH'], file_string, file_string)
-    ghostscript_command = "(cd %s && gs -dNOPAUSE -dBATCH -dNumRenderingThreads=8 -sDEVICE=pngalpha -sOutputFile=%s-%%d.png -r300 -q %s.pdf)" %(application.config['UPLOAD_PATH'], file_string, file_string)
+    ghostscript_command = "(cd %s && gs -dNOPAUSE -dBATCH -dNumRenderingThreads=8 -sDEVICE=pngalpha -dBackgroundColor=16#ffffff -sOutputFile=%s-%%d.png -r300 -q %s.pdf)" %(application.config['UPLOAD_PATH'], file_string, file_string)
     os.system(ghostscript_command)
-
+    #-sDEVICE=png16m
     end_time = datetime.datetime.utcnow()
 
     return (str(end_time - start_time), str(pdf_time - start_time))

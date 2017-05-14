@@ -19,12 +19,12 @@ const mapDispatchToProps = (dispatch) => {
 var EmailView = React.createClass({
 
   _onClick: function(){
-    var input = document.getElementById('input-name');
+    var input = document.getElementById('input-email');
     var email = input.value;
     this.props.postEmail(email)
   },
 
-  _onName: function(e){
+  _onEmailKeyPress: function(e){
     if (e.nativeEvent.keyCode != 13) return;
     var email = e.target.value;
     this.props.postEmail(email)
@@ -32,11 +32,20 @@ var EmailView = React.createClass({
 
   render: function() {
       return (
-          <div style={{marginTop: '20px'}}>
-              <input id="input-name" className="swish-input" style={{width: '350'}} onKeyPress={this._onName} placeholder="Enter your email here" />
-              <button className="bright-blue-hover btn-white" onClick={this._onClick} id="try-it-out">
-                  Submit Email
-              </button>
+          <div>
+              <div className="row">
+                    <div className="col-12">
+                        <p> Please provide your email below so that we can send you an administration link. </p>
+                    </div>
+              </div>
+              <div className="row">
+                  <div className="col-12" style={{marginBottom: '20px'}}>
+                      <input id="input-email" type="email" className="text-input light" style={{width: '350px'}} onKeyPress={this._onEmailKeyPress} placeholder="Enter your email here" />
+                      <button className="submit-button light" onClick={this._onClick}>
+                          Submit
+                      </button>
+                  </div>
+              </div>
           </div>
       );
   }

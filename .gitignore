@@ -336,8 +336,9 @@ node_modules/wrappy/
 node_modules/xmlhttprequest/
 static/css/bootstrap.css
 static/css/bootstrap.css.map
-static/css/cover.css
 static/css/helper.css
 static/css/pe-icon-7-stroke.css
 static/javascript/
 textsnippets
+.ebextensions/
+application/static/fonts/

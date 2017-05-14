@@ -34,15 +34,18 @@ configurePusher(store, PUSHER_CHAT_APP_KEY, pusheroptions);
 import HomeView from './HomeView.jsx'
 import AdminPresView from './AdminPresentationView.jsx'
 import ViewerPresView from './ViewerPresentationView.jsx'
-import ShareView from './ShareView.jsx'
+import AdminControlView from './AdminControlView.jsx'
+import DemoAdminControlView from './DemoAdminControlView.jsx'
 
 render((
     <Provider store={store}>
           <Router history={browserHistory}>
             <Route path="/" component={HomeView} />
+            <Route path="/beta" component={HomeView} />
             <Route path="/admin/:presID/present" component={AdminPresView} />
-            <Route path="/admin/:presID" component={ShareView} />
+            <Route path="/admin/:presID" component={AdminControlView} />
+            <Route path="/tryit/:presID" component={DemoAdminControlView} />
             <Route path="/:presID" component={ViewerPresView} />
           </Router>
     </Provider>
-    ), document.getElementById('app'));
+), document.getElementById('app'));
